@@ -51,11 +51,14 @@ robolectric {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:support-v4:21.0.0'
 
     compile 'com.google.guava:guava:18.0'
 
+    compile 'org.roboguice:roboguice:3.0'
+    provided 'org.roboguice:roboblender:3.0'
 
+    compile 'com.squareup.picasso:picasso:2.4.0'
 
     androidTestCompile('junit:junit:4.11')
     androidTestCompile('org.robolectric:robolectric:2.4') {

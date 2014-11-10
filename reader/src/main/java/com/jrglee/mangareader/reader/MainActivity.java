@@ -1,18 +1,36 @@
 package com.jrglee.mangareader.reader;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import com.squareup.picasso.Picasso;
+import roboguice.activity.RoboActivity;
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
+import roboguice.util.Ln;
 
+import javax.inject.Inject;
 
-public class MainActivity extends Activity {
+@ContentView(R.layout.activity_main)
+public class MainActivity extends RoboActivity {
+
+    @InjectView(R.id.content)
+    ImageView content;
+
+    @Inject
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        Ln.d("Opening image into %s", content);
+        Picasso.with(context)
+                .load("http://e465.enterprise.fastwebserver.de/series/Naruto/0001-001.png")
+                .into(content);
     }
+
 
 
     @Override
