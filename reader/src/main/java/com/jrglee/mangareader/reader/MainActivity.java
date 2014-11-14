@@ -5,13 +5,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import com.google.inject.Inject;
 import com.squareup.picasso.Picasso;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 import roboguice.util.Ln;
-
-import javax.inject.Inject;
 
 @ContentView(R.layout.activity_main)
 public class MainActivity extends RoboActivity {
@@ -30,8 +29,6 @@ public class MainActivity extends RoboActivity {
                 .load("http://e465.enterprise.fastwebserver.de/series/Naruto/0001-001.png")
                 .into(content);
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
