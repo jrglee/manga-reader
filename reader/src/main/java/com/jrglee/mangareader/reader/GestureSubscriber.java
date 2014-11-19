@@ -10,12 +10,12 @@ import rx.Subscriber;
 import static com.jrglee.mangareader.reader.GestureEvent.move;
 import static com.jrglee.mangareader.reader.GestureEvent.zoom;
 
-public class DoubleTapSubscriber implements Observable.OnSubscribe<GestureEvent> {
+public class GestureSubscriber implements Observable.OnSubscribe<GestureEvent> {
 
     public final Context context;
     public final View view;
 
-    public DoubleTapSubscriber(Context context, View view) {
+    public GestureSubscriber(Context context, View view) {
         this.context = context;
         this.view = view;
     }

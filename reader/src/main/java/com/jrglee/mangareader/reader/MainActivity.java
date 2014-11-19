@@ -32,7 +32,6 @@ public class MainActivity extends RoboActivity {
 
     Observable<GestureEvent> obs;
 
-    Matrix matrix = new Matrix();
     boolean zoomed = false;
 
     @Override
@@ -44,31 +43,37 @@ public class MainActivity extends RoboActivity {
                 .load("http://e465.enterprise.fastwebserver.de/series/Naruto/0001-001.png")
                 .into(content);
 
-        obs = Observable.create(new DoubleTapSubscriber(context, content));
+        obs = Observable.create(new GestureSubscriber(context, content));
         obs.observeOn(mainThread()).subscribe(this::handleGesture);
     }
 
     private void handleGesture(GestureEvent event) {
         content.setScaleType(MATRIX);
-        matrix.set(content.getImageMatrix());
+        Matrix matrix = new Matrix(content.getImageMatrix());
         if (event.type == ZOOM_TOGGLE) {
-            if (zoomed) {
-                GestureEvent.ZoomToggleEvent zoom = (GestureEvent.ZoomToggleEvent) event;
-                MotionEvent originator = zoom.originator;
-                matrix.postScale(4.0f, 4.0f, originator.getX(), originator.getY());
-                zoomed = false;
-            } else {
-                content.setScaleType(CENTER_INSIDE);
-                zoomed = true;
-            }
-            Ln.d("Zooming");
+            handleZoom((GestureEvent.ZoomToggleEvent) event, matrix);
         } else if (event.type == MOVE){
-            GestureEvent.MoveEvent move = (GestureEvent.MoveEvent) event;
-            matrix.postTranslate(-move.distanceX, -move.distanceY);
-            Ln.d("Moving");
+            handleMove((GestureEvent.MoveEvent) event, matrix);
         }
         Ln.d("Matrix %s", matrix);
         content.setImageMatrix(matrix);
+    }
+
+    private void handleMove(GestureEvent.MoveEvent event, Matrix matrix) {
+        matrix.postTranslate(-event.distanceX, -event.distanceY);
+        Ln.d("Moving");
+    }
+
+    private void handleZoom(GestureEvent.ZoomToggleEvent event, Matrix matrix) {
+        if (zoomed) {
+            content.setScaleType(CENTER_INSIDE);
+            zoomed = false;
+        } else {
+            MotionEvent originator = event.originator;
+            matrix.postScale(4.0f, 4.0f, originator.getX(), originator.getY());
+            zoomed = true;
+        }
+        Ln.d("Zooming");
     }
 
     @Override
