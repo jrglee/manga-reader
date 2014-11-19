@@ -56,11 +56,12 @@ robolectric {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:21.0.0'
+    compile 'com.android.support:support-v4:21.0.2'
     compile 'com.netflix.rxjava:rxjava-android:0.20.7'
     compile 'com.google.guava:guava:18.0'
 
     compile 'org.roboguice:roboguice:3.0'
+    provided 'org.roboguice:roboblender:3.0'
 
     compile 'com.squareup.picasso:picasso:2.4.0'
 

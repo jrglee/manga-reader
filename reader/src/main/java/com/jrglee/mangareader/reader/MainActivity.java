@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 import com.google.inject.Inject;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
@@ -16,6 +15,10 @@ import roboguice.inject.InjectView;
 import roboguice.util.Ln;
 import rx.Observable;
 
+import static android.widget.ImageView.ScaleType.CENTER_INSIDE;
+import static android.widget.ImageView.ScaleType.MATRIX;
+import static com.jrglee.mangareader.reader.GestureEvent.Type.MOVE;
+import static com.jrglee.mangareader.reader.GestureEvent.Type.ZOOM_TOGGLE;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 @ContentView(R.layout.activity_main)
@@ -27,9 +30,10 @@ public class MainActivity extends RoboActivity {
     @Inject
     Context context;
 
-    Observable<MotionEvent> obs;
+    Observable<GestureEvent> obs;
 
     Matrix matrix = new Matrix();
+    boolean zoomed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,25 +42,33 @@ public class MainActivity extends RoboActivity {
         Ln.d("Opening image into %s", content);
         Picasso.with(context)
                 .load("http://e465.enterprise.fastwebserver.de/series/Naruto/0001-001.png")
-                .into(content, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        matrix.set(content.getImageMatrix());
-                    }
-
-                    @Override
-                    public void onError() {
-                    }
-                });
+                .into(content);
 
         obs = Observable.create(new DoubleTapSubscriber(context, content));
-        obs.observeOn(mainThread())
-                .subscribe(motionEvent -> {
-                    Ln.d("Matrix %s", matrix);
-                    content.setScaleType(ImageView.ScaleType.MATRIX);
-                    matrix.setScale(4.0f, 4.0f);
-                    content.setImageMatrix(matrix);
-                });
+        obs.observeOn(mainThread()).subscribe(this::handleGesture);
+    }
+
+    private void handleGesture(GestureEvent event) {
+        content.setScaleType(MATRIX);
+        matrix.set(content.getImageMatrix());
+        if (event.type == ZOOM_TOGGLE) {
+            if (zoomed) {
+                GestureEvent.ZoomToggleEvent zoom = (GestureEvent.ZoomToggleEvent) event;
+                MotionEvent originator = zoom.originator;
+                matrix.postScale(4.0f, 4.0f, originator.getX(), originator.getY());
+                zoomed = false;
+            } else {
+                content.setScaleType(CENTER_INSIDE);
+                zoomed = true;
+            }
+            Ln.d("Zooming");
+        } else if (event.type == MOVE){
+            GestureEvent.MoveEvent move = (GestureEvent.MoveEvent) event;
+            matrix.postTranslate(-move.distanceX, -move.distanceY);
+            Ln.d("Moving");
+        }
+        Ln.d("Matrix %s", matrix);
+        content.setImageMatrix(matrix);
     }
 
     @Override
