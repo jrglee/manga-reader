@@ -8,6 +8,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 import com.google.inject.Inject;
+import com.jrglee.mangareader.reader.GestureEvent.MoveEvent;
+import com.jrglee.mangareader.reader.GestureEvent.ZoomToggleEvent;
 import com.squareup.picasso.Picasso;
 import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
@@ -23,6 +25,8 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 @ContentView(R.layout.activity_main)
 public class MainActivity extends RoboActivity {
+
+    public static final float ZOOM_FACTOR = 4.0f;
 
     @InjectView(R.id.content)
     ImageView content;
@@ -51,26 +55,28 @@ public class MainActivity extends RoboActivity {
         content.setScaleType(MATRIX);
         Matrix matrix = new Matrix(content.getImageMatrix());
         if (event.type == ZOOM_TOGGLE) {
-            handleZoom((GestureEvent.ZoomToggleEvent) event, matrix);
+            handleZoom((ZoomToggleEvent) event, matrix);
         } else if (event.type == MOVE){
-            handleMove((GestureEvent.MoveEvent) event, matrix);
+            handleMove((MoveEvent) event, matrix);
         }
         Ln.d("Matrix %s", matrix);
         content.setImageMatrix(matrix);
     }
 
-    private void handleMove(GestureEvent.MoveEvent event, Matrix matrix) {
-        matrix.postTranslate(-event.distanceX, -event.distanceY);
-        Ln.d("Moving");
+    private void handleMove(MoveEvent event, Matrix matrix) {
+        if (zoomed) {
+            matrix.postTranslate(-event.distanceX, -event.distanceY);
+            Ln.d("Moving");
+        }
     }
 
-    private void handleZoom(GestureEvent.ZoomToggleEvent event, Matrix matrix) {
+    private void handleZoom(ZoomToggleEvent event, Matrix matrix) {
         if (zoomed) {
             content.setScaleType(CENTER_INSIDE);
             zoomed = false;
         } else {
             MotionEvent originator = event.originator;
-            matrix.postScale(4.0f, 4.0f, originator.getX(), originator.getY());
+            matrix.postScale(ZOOM_FACTOR, ZOOM_FACTOR, originator.getX(), originator.getY());
             zoomed = true;
         }
         Ln.d("Zooming");
