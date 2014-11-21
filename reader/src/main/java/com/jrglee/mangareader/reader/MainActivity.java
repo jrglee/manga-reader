@@ -59,7 +59,6 @@ public class MainActivity extends RoboActivity {
         } else if (event.type == MOVE){
             handleMove((MoveEvent) event, matrix);
         }
-        Ln.d("Matrix %s", matrix);
         content.setImageMatrix(matrix);
     }
 
@@ -67,6 +66,7 @@ public class MainActivity extends RoboActivity {
         if (zoomed) {
             matrix.postTranslate(-event.distanceX, -event.distanceY);
             Ln.d("Moving");
+            Ln.d("Matrix  %s", matrix);
         }
     }
 
@@ -80,6 +80,7 @@ public class MainActivity extends RoboActivity {
             zoomed = true;
         }
         Ln.d("Zooming");
+        Ln.d("Matrix %s", matrix);
     }
 
     @Override
